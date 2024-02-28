@@ -17,18 +17,40 @@ dependencies {
     implementation 'com.oracle.database.jdbc:ojdbc10:19.22.0.0'
 }
 
-task('deploy') {
-
+task('deployConfig') {
     liquibase {
         activities {
-            main {
-                changelogFile "changeLog/sharedUsers/changeLog.sql"
-                url "jdbc:oracle:thin:@localhost:1521/ORCL"
-                username "sys as SYSDBA"
-                password ""
+            configs {
+                changelogFile "changeLog/changeLogConfig.sql"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "pdb_adm"
+                password "pdb_adm"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
             }
         }
     }
 }
-update.dependsOn(deploy)
+
+task('deployLogging') {
+    liquibase {
+        activities {
+            loggingDataModel {
+                changelogFile "changeLog/changeLogLoggingDataModel.sql"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "app_dbo[app_logging]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
+            loggingCode {
+                changelogFile "changeLog/changeLogLoggingCode.xml"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "app_dbo[app_logging]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
+        }
+    }
+}
+
+update.dependsOn(deployConfig)
+update.dependsOn(deployLogging)

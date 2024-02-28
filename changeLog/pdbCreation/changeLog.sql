@@ -1,0 +1,12 @@
+CREATE PLUGGABLE DATABASE prod ADMIN USER pdb_adm IDENTIFIED BY pdb_adm;
+alter pluggable database prod open;
+alter session set container = prod;
+create tablespace users;
+alter user pdb_adm default tablespace users;
+alter user pdb_adm quota unlimited on users;
+grant create tablespace to pdb_adm;
+grant create user to pdb_adm;
+grant alter user to pdb_adm;
+grant create table to pdb_adm;
+grant grant any privilege to pdb_adm;
+grant grant any role to pdb_adm;
