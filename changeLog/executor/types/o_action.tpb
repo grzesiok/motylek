@@ -12,7 +12,7 @@ CREATE OR REPLACE TYPE BODY o_action AS
 
   FINAL MEMBER PROCEDURE p_execbefore AS
   BEGIN
-    dbms_profiler.start_profiler(run_comment => SELF.key#||'_'||to_char(systimestamp, 'yyyymmddhh24missff'));
+    null;/*dbms_profiler.start_profiler(run_comment => SELF.key#||'_'||to_char(systimestamp, 'yyyymmddhh24missff'));*/
   END p_execbefore;
   
   MEMBER PROCEDURE p_exec AS
@@ -22,7 +22,7 @@ CREATE OR REPLACE TYPE BODY o_action AS
 
   FINAL MEMBER PROCEDURE p_execafter AS
   BEGIN
-    dbms_profiler.stop_profiler;
+    null;/*dbms_profiler.stop_profiler;*/
   END p_execafter;
 
   FINAL STATIC FUNCTION f_serialize(i_bytecode XMLTYPE) RETURN o_action AS
