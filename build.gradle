@@ -52,5 +52,20 @@ task('deployLogging') {
     }
 }
 
+task('deployExecutor') {
+    liquibase {
+        activities {
+            executorCode {
+                changelogFile "changeLog/changeLogExecutorCode.xml"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "app_dbo[app_executor]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
+        }
+    }
+}
+
 update.dependsOn(deployConfig)
 update.dependsOn(deployLogging)
+update.dependsOn(deployExecutor)
