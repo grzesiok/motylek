@@ -17,7 +17,7 @@ dependencies {
     implementation 'com.oracle.database.jdbc:ojdbc10:19.22.0.0'
 }
 
-task('deployConfig') {
+task deployConfig {
     liquibase {
         activities {
             configs {
@@ -31,7 +31,7 @@ task('deployConfig') {
     }
 }
 
-task('deployLogging') {
+task deployLogging(dependsOn: [':deployConfig']) {
     liquibase {
         activities {
             loggingDataModel {
@@ -52,7 +52,7 @@ task('deployLogging') {
     }
 }
 
-task('deployExecutor') {
+task deployExecutor(dependsOn: [':deployLogging']) {
     liquibase {
         activities {
             executorCode {
@@ -66,6 +66,28 @@ task('deployExecutor') {
     }
 }
 
+task deployDownload(dependsOn: [':deployExecutor']) {
+    liquibase {
+        activities {
+            downloadDataModel {
+                changelogFile "changeLog/changeLogDownloadDataModel.sql"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "app_dbo[app_download]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
+            downloadCode {
+                changelogFile "changeLog/changeLogDownloadCode.xml"
+                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                username "app_dbo[app_download]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
+        }
+    }
+}
+
 update.dependsOn(deployConfig)
 update.dependsOn(deployLogging)
 update.dependsOn(deployExecutor)
+update.dependsOn(deployDownload)

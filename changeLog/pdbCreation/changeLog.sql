@@ -10,3 +10,5 @@ grant alter user to pdb_adm;
 grant create table to pdb_adm;
 grant grant any privilege to pdb_adm;
 grant grant any role to pdb_adm;
+grant execute on utl_http to pdb_adm with grant option;
+grant execute on dbms_network_acl_admin to pdb_adm;

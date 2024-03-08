@@ -24,7 +24,7 @@ CREATE OR REPLACE EDITIONABLE PACKAGE BODY PKG_LOGGING is
   /* API */
 
   procedure log_job_start(
-    i_job_name in job_metadata.job_name%type,
+    i_job_name in job_log.job_name%type,
     i_plsql_unit in job_log.plsql_unit%type default null,
     i_plsql_lineno in job_log.plsql_lineno%type default null,
     i_PLSQL_OWNER in job_log.PLSQL_OWNER%type default null
@@ -35,30 +35,18 @@ CREATE OR REPLACE EDITIONABLE PACKAGE BODY PKG_LOGGING is
     l_plsql_lineno job_log.plsql_lineno%type;
     l_plsql_owner job_log.PLSQL_OWNER%type;
     l_caller_t varchar2(200);
+    l_current_timestamp timestamp := systimestamp;
   begin
-    owa_util.who_called_me(
-      l_plsql_owner,
-      l_plsql_unit,
-      l_plsql_lineno,
-      l_caller_t
-    );
-
-    if i_plsql_unit is null then
-      owa_util.who_called_me(
-        l_plsql_owner,
-        l_plsql_unit,
-        l_plsql_lineno,
-        l_caller_t
-      );
-    end if;
-    select job_metadata_id into l_job_log.job_metadata_id
-    from job_metadata
-    where job_name = i_job_name;
+    owa_util.who_called_me(l_plsql_owner,
+                           l_plsql_unit,
+                           l_plsql_lineno,
+                           l_caller_t);
+    l_job_log.job_name := i_job_name;
     l_job_log.job_log_id := seq_job_log_id.nextval;
     l_job_log.parent_job_log_id := g_last_job_log_id;
     l_job_log.job_status_code := C_JOB_STATUS_EXECUTING;
-    l_job_log.log_time := systimestamp;
-    l_job_log.start_time := systimestamp;
+    l_job_log.log_time := l_current_timestamp;
+    l_job_log.start_time := l_current_timestamp;
     l_job_log.database_name := sys_context('USERENV', 'DB_NAME');
     l_job_log.session_user := sys_context('USERENV', 'SESSION_USER');
     l_job_log.os_user := sys_context('USERENV', 'OS_USER');

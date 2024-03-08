@@ -38,4 +38,4 @@ CREATE OR REPLACE TYPE BODY o_action AS
   END f_deserialize;
 
 END;
-/
+GO

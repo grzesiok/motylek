@@ -11,4 +11,4 @@ CREATE OR REPLACE TYPE BODY o_test_action AS
     dbms_output.put_line(SELF.key#);
   END;
 END;
-/
+GO
