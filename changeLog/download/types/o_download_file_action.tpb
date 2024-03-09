@@ -35,7 +35,7 @@ create or replace TYPE BODY o_download_file_action AS
           utl_http.end_response(l_http_response);
           app_logging.pkg_logging.log_message(i_message => 'HTTP_VERSION='||l_http_response.http_version||' '||
                                                            'STATUS_CODE='||l_http_response.status_code||' '||
-                                                           'REASON_PHRASE'||l_http_response.reason_phrase,
+                                                           'REASON_PHRASE='||l_http_response.reason_phrase,
                                               i_message_type => app_logging.pkg_logging.C_JOB_MESSAGE_ERROR);
           raise_application_error(-20000, 'HTTP_VERSION='||l_http_response.http_version||' '||
                                           'STATUS_CODE='||l_http_response.status_code||' '||
