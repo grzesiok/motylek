@@ -54,17 +54,26 @@ CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
     l_payload ANYDATA;
     l_action o_action;
   BEGIN
+    app_logging.pkg_logging.log_job_start(i_job_name => DESCR.consumer_name||'['||DESCR.msg_id||']');
     l_dequeue_options.msgid := DESCR.msg_id;
     l_dequeue_options.consumer_name := DESCR.consumer_name;
+    app_logging.pkg_logging.log_message(i_message => 'Dequeue message '||DESCR.msg_id||' ...');
     dbms_aq.DEQUEUE(queue_name => DESCR.queue_name,
                     dequeue_options => l_dequeue_options,
                     message_properties => l_message_properties,
                     msgid => l_msgid,
                     payload => l_payload);
+    app_logging.pkg_logging.log_message(i_message => 'Serialize object '||l_payload.gettypename||' for message '||DESCR.msg_id||' ...');
     l_action := o_action.f_serialize(l_payload);
+    app_logging.pkg_logging.log_message(i_message => 'Execute action '||l_action.key#||' ...');
     pkg_executor_api.p_exec(i_action => l_action,
                             i_mode => pkg_executor_api.c_action_mode_synchronous);
     COMMIT;
+    app_logging.pkg_logging.log_job_end;
+  EXCEPTION
+    WHEN OTHERS THEN
+      app_logging.pkg_logging.log_job_end(i_status => app_logging.pkg_logging.c_job_status_error);
+      raise_application_error(-20000, 'Error during processing data!', TRUE);
   END;
 
   PROCEDURE p_start
