@@ -12,7 +12,7 @@ CREATE OR REPLACE TYPE BODY o_action AS
 
   FINAL MEMBER PROCEDURE p_execbefore AS
   BEGIN
-    null;/*dbms_profiler.start_profiler(run_comment => SELF.key#||'_'||to_char(systimestamp, 'yyyymmddhh24missff'));*/
+    NULL;/*dbms_profiler.start_profiler(run_comment => SELF.key#||'_'||to_char(systimestamp, 'yyyymmddhh24missff'));*/
   END p_execbefore;
   
   MEMBER PROCEDURE p_exec AS
@@ -22,19 +22,23 @@ CREATE OR REPLACE TYPE BODY o_action AS
 
   FINAL MEMBER PROCEDURE p_execafter AS
   BEGIN
-    null;/*dbms_profiler.stop_profiler;*/
+    NULL;/*dbms_profiler.stop_profiler;*/
   END p_execafter;
 
-  FINAL STATIC FUNCTION f_serialize(i_bytecode XMLTYPE) RETURN o_action AS
+  FINAL STATIC FUNCTION f_serialize(i_bytecode IN OUT NOCOPY ANYDATA) RETURN o_action AS
     l_cmd o_action;
+    l_ret PLS_INTEGER;
   BEGIN
-    i_bytecode.toobject(l_cmd);
+    l_ret := i_bytecode.getobject(l_cmd);
+    IF(l_ret != dbms_types.SUCCESS) THEN
+      raise_application_error(-20000, 'Problem with serialization');
+    END IF; 
     RETURN l_cmd;
   END f_serialize;
 
-  FINAL STATIC FUNCTION f_deserialize(i_object o_action) RETURN XMLTYPE AS
+  FINAL STATIC FUNCTION f_deserialize(i_object IN OUT NOCOPY o_action) RETURN ANYDATA AS
   BEGIN
-    RETURN XMLTYPE(i_object);
+    RETURN ANYDATA.convertobject(i_object);
   END f_deserialize;
 
 END;

@@ -22,7 +22,7 @@ task deployConfig {
         activities {
             configs {
                 changelogFile "changeLog/changeLogConfig.sql"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "pdb_adm"
                 password "pdb_adm"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
@@ -36,14 +36,14 @@ task deployLogging(dependsOn: [':deployConfig']) {
         activities {
             loggingDataModel {
                 changelogFile "changeLog/changeLogLoggingDataModel.sql"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "app_dbo[app_logging]"
                 password "app_dbo"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
             }
             loggingCode {
                 changelogFile "changeLog/changeLogLoggingCode.xml"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "app_dbo[app_logging]"
                 password "app_dbo"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
@@ -55,9 +55,16 @@ task deployLogging(dependsOn: [':deployConfig']) {
 task deployExecutor(dependsOn: [':deployLogging']) {
     liquibase {
         activities {
+            executorDataModel {
+                changelogFile "changeLog/changeLogExecutorDataModel.sql"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
+                username "app_dbo[app_executor]"
+                password "app_dbo"
+                classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
+            }
             executorCode {
                 changelogFile "changeLog/changeLogExecutorCode.xml"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "app_dbo[app_executor]"
                 password "app_dbo"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
@@ -71,14 +78,14 @@ task deployDownload(dependsOn: [':deployExecutor']) {
         activities {
             downloadDataModel {
                 changelogFile "changeLog/changeLogDownloadDataModel.sql"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "app_dbo[app_download]"
                 password "app_dbo"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
             }
             downloadCode {
                 changelogFile "changeLog/changeLogDownloadCode.xml"
-                url "jdbc:oracle:thin:@localhost:1521/PROD"
+                url "jdbc:oracle:thin:@localhost:1521/dev"
                 username "app_dbo[app_download]"
                 password "app_dbo"
                 classpath "C:/Oracle/21c/jdbc/lib/ojdbc8.jar"
@@ -87,7 +94,11 @@ task deployDownload(dependsOn: [':deployExecutor']) {
     }
 }
 
+task deployImport(dependsOn: [':deployDownload']) {
+}
+
 update.dependsOn(deployConfig)
 update.dependsOn(deployLogging)
 update.dependsOn(deployExecutor)
 update.dependsOn(deployDownload)
+update.dependsOn(deployImport)

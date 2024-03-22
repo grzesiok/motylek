@@ -8,7 +8,7 @@ CREATE OR REPLACE TYPE o_action FORCE AUTHID CURRENT_USER AS OBJECT(
   MEMBER PROCEDURE p_exec,
   FINAL MEMBER PROCEDURE p_execafter,
   --object serialization
-  FINAL STATIC FUNCTION f_serialize(i_bytecode XMLTYPE) RETURN o_action,
-  FINAL STATIC FUNCTION f_deserialize(i_object o_action) RETURN XMLTYPE
+  FINAL STATIC FUNCTION f_serialize(i_bytecode IN OUT NOCOPY ANYDATA) RETURN o_action,
+  FINAL STATIC FUNCTION f_deserialize(i_object IN OUT NOCOPY o_action) RETURN ANYDATA
 ) NOT FINAL NOT INSTANTIABLE;
 GO
