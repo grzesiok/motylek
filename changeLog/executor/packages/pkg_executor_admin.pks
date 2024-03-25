@@ -4,7 +4,7 @@ create or replace PACKAGE pkg_executor_admin AS
                        reginfo SYS.aq$_reg_info,
                        DESCR SYS.aq$_descriptor,
                        payload RAW,
-                       payload1 NUMBER);
+                       payloadl NUMBER);
 
   PROCEDURE p_start;
   

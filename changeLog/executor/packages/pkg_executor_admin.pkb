@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
+create or replace PACKAGE BODY pkg_executor_admin AS
 
   c_queue_state_notexists CONSTANT VARCHAR2(1) := 'N';
   c_queue_state_notstarted CONSTANT VARCHAR2(1) := 'S';
@@ -47,7 +47,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
                        reginfo SYS.aq$_reg_info,
                        DESCR SYS.aq$_descriptor,
                        payload RAW,
-                       payload1 NUMBER) AS
+                       payloadl NUMBER) AS
     l_dequeue_options dbms_aq.dequeue_options_t;
     l_message_properties dbms_aq.message_properties_t;
     l_msgid RAW(16);
@@ -94,9 +94,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
                                 subscriber => SYS.aq$_agent(NAME => pkg_executor_constants.c_consumer_name,
                                                             address => NULL,
                                                             PROTOCOL => NULL));
-      dbms_aq.REGISTER(reg_list => SYS.aq$_reg_info_list(SYS.aq$_reg_info(NAME => pkg_executor_constants.c_queue_name||':'||pkg_executor_constants.c_consumer_name,
+      dbms_aq.REGISTER(reg_list => SYS.aq$_reg_info_list(SYS.aq$_reg_info(NAME => $$plsql_unit_owner||'.'||pkg_executor_constants.c_queue_name||':'||pkg_executor_constants.c_consumer_name,
                                                                           NAMESPACE => dbms_aq.namespace_aq,
-                                                                          callback => 'plsql://'||$$plsql_unit_owner||'.'||$$plsql_unit||'.p_callback',
+                                                                          callback => 'plsql://'||$$plsql_unit_owner||'.'||$$plsql_unit||'.p_callback?PR=1',
                                                                           CONTEXT => NULL)),
                        reg_count => 1);
       app_logging.pkg_logging.log_message(i_message => 'Creating subscriber '||pkg_executor_constants.c_consumer_name||' DONE');
@@ -113,9 +113,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
     IF(fn_get_queue_subscriber_state(p_queue_name => pkg_executor_constants.c_queue_name,
                                      p_consumer_name => pkg_executor_constants.c_consumer_name) = c_queue_subscriber_created) THEN
       app_logging.pkg_logging.log_message(i_message => 'Removing subscriber '||pkg_executor_constants.c_consumer_name||' ...');
-      dbms_aq.unregister(reg_list => SYS.aq$_reg_info_list(SYS.aq$_reg_info(NAME => pkg_executor_constants.c_queue_name||':'||pkg_executor_constants.c_consumer_name,
+      dbms_aq.unregister(reg_list => SYS.aq$_reg_info_list(SYS.aq$_reg_info(NAME => $$plsql_unit_owner||'.'||pkg_executor_constants.c_queue_name||':'||pkg_executor_constants.c_consumer_name,
                                                                             NAMESPACE => dbms_aq.namespace_aq,
-                                                                            callback => 'plsql://'||$$plsql_unit_owner||'.'||$$plsql_unit||'.p_callback',
+                                                                            callback => 'plsql://'||$$plsql_unit_owner||'.'||$$plsql_unit||'.p_callback?PR=1',
                                                                             CONTEXT => NULL)),
                          reg_count => 1);
       dbms_aqadm.remove_subscriber(queue_name => $$plsql_unit_owner||'.'||pkg_executor_constants.c_queue_name,
@@ -157,7 +157,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_executor_admin AS
                                     multiple_consumers => TRUE);
       dbms_aqadm.create_queue(queue_name => pkg_executor_constants.c_queue_name,
                               queue_table => pkg_executor_constants.c_queue_table_name,
-                              max_retries => 2);
+                              max_retries => 1);
       app_logging.pkg_logging.log_message(i_message => 'Creating queue '||pkg_executor_constants.c_queue_name||' DONE');
     END IF;
     p_start;
