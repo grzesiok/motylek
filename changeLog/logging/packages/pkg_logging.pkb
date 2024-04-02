@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY pkg_logging IS
+create or replace PACKAGE BODY pkg_logging IS
 
   /* INTERNALS */
   PROCEDURE assert(i_expr BOOLEAN, i_message VARCHAR2) AS
@@ -25,11 +25,12 @@ CREATE OR REPLACE PACKAGE BODY pkg_logging IS
   AS
     l_job_log_id job_log.job_log_id%TYPE;
   BEGIN
-    SELECT T.job_log_id INTO l_job_log_id
+    SELECT /*+ first_rows(1) fn_get_last_job_log_id */ T.job_log_id INTO l_job_log_id
     FROM (SELECT jl.job_log_id, LEVEL lvl, MAX(LEVEL) OVER () AS max_lvl
-          FROM job_log jl
-          WHERE session_id = sys_context('USERENV', 'SESSIONID')
-            AND job_status_code = 'EXEC'
+          FROM (SELECT jl2.job_log_id, jl2.parent_job_log_id
+                FROM job_log jl2
+                WHERE jl2.session_id = sys_context('USERENV', 'SESSIONID')
+                  AND jl2.job_status_code = 'EXEC') jl
           CONNECT BY NOCYCLE PRIOR jl.job_log_id = jl.parent_job_log_id
           START WITH jl.parent_job_log_id IS NULL) T
     WHERE T.lvl = T.max_lvl;
