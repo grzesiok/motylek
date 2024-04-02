@@ -14,3 +14,14 @@ grant execute on utl_http to pdb_adm with grant option;
 grant execute on dbms_network_acl_admin to pdb_adm;
 grant execute on dbms_aqadm to pdb_adm with grant option;
 grant execute on dbms_aq to pdb_adm with grant option;
+grant execute on dbms_crypto to pdb_adm with grant option;
+BEGIN
+  dbms_network_acl_admin.append_host_ace (
+    HOST       => 'api.nbp.pl',
+    lower_port => 80,
+    upper_port => 80,
+    ace        => xs$ace_type(privilege_list => xs$name_list('http'),
+                              principal_name => 'app_download',
+                              principal_type => xs_acl.ptype_db)); 
+END;
+/
